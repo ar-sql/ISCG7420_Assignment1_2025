@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 {% block title %}My Reservations{% endblock %}
 {% block content %}
-  <h1 class="title">My Reservations</h1>
+  <h1 class="title"><span class="icon"><i class="fas fa-calendar-alt"></i></span> My Reservations</h1>
   <table class="table is-fullwidth">
     <thead>
       <tr>
-        <th>Room</th>
-        <th>Start</th>
-        <th>End</th>
-        <th>Actions</th>
+        <th><span class="icon"><i class="fas fa-door-open"></i></span> Room</th>
+        <th><span class="icon"><i class="fas fa-play"></i></span> Start</th>
+        <th><span class="icon"><i class="fas fa-stop"></i></span> End</th>
+        <th><span class="icon"><i class="fas fa-tools"></i></span> Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -18,18 +18,24 @@
           <td>{{ res.start_time|date:"Y-m-d H:i" }}</td>
           <td>{{ res.end_time|date:"Y-m-d H:i" }}</td>
           <td>
-            <a href="{% url 'reservation_edit' res.pk %}" class="button is-small is-info">
-              Edit
+            <a
+              href="{% url 'reservation_edit' res.pk %}"
+              class="button is-small is-info"
+            >
+              <span class="icon is-small"><i class="fas fa-edit"></i></span>
+              <span>Edit</span>
             </a>
-            <a href="{% url 'reservation_cancel' res.pk %}" class="button is-small is-danger">
-              Cancel
+            <a
+              href="{% url 'reservation_cancel' res.pk %}"
+              class="button is-small is-danger"
+            >
+              <span class="icon is-small"><i class="fas fa-times"></i></span>
+              <span>Cancel</span>
             </a>
           </td>
         </tr>
       {% empty %}
-        <tr>
-          <td colspan="4">No reservations yet.</td>
-        </tr>
+        <tr><td colspan="4">No reservations yet.</td></tr>
       {% endfor %}
     </tbody>
   </table>

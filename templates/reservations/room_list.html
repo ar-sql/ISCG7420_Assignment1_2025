@@ -1,24 +1,23 @@
 {% extends 'base.html' %}
 {% block title %}Available Rooms{% endblock %}
 {% block content %}
-  <h1 class="title">Available Rooms</h1>
+  <h1 class="title"><span class="icon"><i class="fas fa-door-open"></i></span> Available Rooms</h1>
   <div class="columns is-multiline">
     {% for room in rooms %}
-      <div class="column is-one-quarter">
+      <div class="column is-4">
         <div class="card">
           <div class="card-content">
             <p class="title">{{ room.name }}</p>
             <p>{{ room.location }} | Capacity: {{ room.capacity }}</p>
           </div>
           <footer class="card-footer">
-            <a class="card-footer-item" href="{% url 'room_detail' room.pk %}">
-              View &amp; Book
+            <a href="{% url 'room_detail' room.pk %}" class="card-footer-item">
+              <span class="icon"><i class="fas fa-eye"></i></span>
+              <span>View & Book</span>
             </a>
           </footer>
         </div>
       </div>
-    {% empty %}
-      <p>No rooms available.</p>
     {% endfor %}
   </div>
 {% endblock %}
