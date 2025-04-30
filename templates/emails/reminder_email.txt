@@ -1,0 +1,8 @@
+Hello {{ reservation.user.username }},
+
+This is a reminder that you have a reservation tomorrow:
+
+Room: {{ reservation.room.name }}
+When: {{ reservation.start_time|date:"Y-m-d H:i" }} – {{ reservation.end_time|date:"H:i" }}
+
+See you then!

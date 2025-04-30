@@ -1,0 +1,130 @@
+:root {
+  /* Brand palette */
+  --primary:   #2c3e50;  /* dark blue-gray */
+  --secondary: #18bc9c;  /* teal */
+  --accent:    #f39c12;  /* warm orange */
+  --light:     #ecf0f1;  /* very light gray */
+  --dark:      #34495e;  /* dark slate */
+
+  /* Typography */
+  --font-sans: 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Reset & base */
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--light);
+  color: var(--dark);
+  line-height: 1.6;
+}
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--secondary);
+  text-decoration: underline;
+}
+
+/* Navigation */
+.nav-container {
+  background-color: var(--primary);
+}
+.nav-list {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  gap: 1rem;
+}
+.nav-list li a {
+  color: #fff;
+  padding: 0.5rem 1rem;
+  display: block;
+}
+.nav-list li a:hover {
+  background-color: var(--secondary);
+  border-radius: 4px;
+}
+
+/* Containers */
+.container {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* Cards */
+.card {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Headings */
+h1, h2, h3 {
+  margin-top: 0;
+  color: var(--dark);
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  transition: opacity 0.2s;
+}
+.btn-primary {
+  background-color: var(--primary);
+  color: #fff;
+}
+.btn-secondary {
+  background-color: var(--secondary);
+  color: #fff;
+}
+.btn-accent {
+  background-color: var(--accent);
+  color: #fff;
+}
+.btn:hover {
+  opacity: 0.9;
+}
+
+/* Form styles */
+form {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+form label {
+  display: block;
+  margin: 0.5rem 0 0.2rem;
+}
+form input,
+form select,
+form textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Footer */
+footer {
+  background-color: var(--dark);
+  color: #fff;
+  text-align: center;
+  padding: 1rem;
+  margin-top: 2rem;
+}

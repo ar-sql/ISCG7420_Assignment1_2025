@@ -1,0 +1,102 @@
+{# ─── ORIGINAL room_detail.html ──────────────────────────────────────────────── #}
+{# {% extends 'base.html' %} #}
+{# {% block title %}{{ room.name }}{% endblock %} #}
+{#  #}
+{# {% block content %} #}
+{#   <h1 class="title">{{ room.name }}</h1> #}
+{#   <p><strong>Location:</strong> {{ room.location }}</p> #}
+{#   <p><strong>Capacity:</strong> {{ room.capacity }}</p> #}
+{#   <p>{{ room.description }}</p> #}
+{#  #}
+{#   <h2 class="subtitle">Upcoming Reservations</h2> #}
+{#   {% if upcoming %} #}
+{#     <table class="table is-fullwidth"> #}
+{#       <thead> #}
+{#         <tr><th>Start</th><th>End</th><th>User</th></tr> #}
+{#       </thead> #}
+{#       <tbody> #}
+{#         {% for res in upcoming %} #}
+{#           <tr> #}
+{#             <td>{{ res.start_time }}</td> #}
+{#             <td>{{ res.end_time }}</td> #}
+{#             <td>{{ res.user.username }}</td> #}
+{#           </tr> #}
+{#         {% endfor %} #}
+{#       </tbody> #}
+{#     </table> #}
+{#   {% else %} #}
+{#     <p>No upcoming reservations.</p> #}
+{#   {% endif %} #}
+{#  #}
+{#   <h2 class="subtitle">Make a Reservation</h2> #}
+{#   {% if user.is_authenticated %} #}
+{#     <form method="post"> #}
+{#       {% csrf_token %} #}
+{#       {{ form.start_time }} {{ form.end_time }} #}
+{#       <button>Book Room</button> #}
+{#     </form> #}
+{#   {% else %} #}
+{#     <p>Please <a href="{% url 'login' %}">log in</a> to book this room.</p> #}
+{#   {% endif %} #}
+{# {% endblock %} #}
+
+{# ─── NEW room_detail.html ──────────────────────────────────────────────────── #}
+{% extends 'base.html' %}
+{% block title %}{{ room.name }}{% endblock %}
+
+{% block content %}
+  <h1 class="title">{{ room.name }}</h1>
+  <p><strong>Location:</strong> {{ room.location }}</p>
+  <p><strong>Capacity:</strong> {{ room.capacity }}</p>
+  <p>{{ room.description }}</p>
+
+  <h2 class="subtitle">Upcoming Reservations</h2>
+  {% if upcoming %}
+    <table class="table is-fullwidth">
+      <thead>
+        <tr><th>Start</th><th>End</th><th>User</th></tr>
+      </thead>
+      <tbody>
+        {% for res in upcoming %}
+          <tr>
+            <td>{{ res.start_time|date:"Y-m-d H:i" }}</td>
+            <td>{{ res.end_time|date:"Y-m-d H:i" }}</td>
+            <td>{{ res.user.username }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No upcoming reservations.</p>
+  {% endif %}
+
+  <h2 class="subtitle mt-5">Make a Reservation</h2>
+  {% if user.is_authenticated %}
+    <form method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <div class="field">
+        <label class="label">Start</label>
+        <div class="control">{{ form.start_time }}</div>
+      </div>
+      <div class="field">
+        <label class="label">End</label>
+        <div class="control">{{ form.end_time }}</div>
+      </div>
+      <button class="button is-primary">Book Room</button>
+    </form>
+  {% else %}
+    <p>Please <a href="{% url 'login' %}">log in</a> to book this room.</p>
+  {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const now = new Date().toISOString().slice(0,16);
+    document.querySelectorAll('input[type="datetime-local"]').forEach(input => {
+      input.min = now;
+    });
+  });
+</script>
+{% endblock %}

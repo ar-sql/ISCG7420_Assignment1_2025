@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <p>Hello {{ reservation.user.username }},</p>
+    <p>This is a reminder that you have a reservation <strong>tomorrow</strong>:</p>
+    <ul>
+      <li><strong>Room:</strong> {{ reservation.room.name }}</li>
+      <li><strong>When:</strong> {{ reservation.start_time|date:"Y-m-d H:i" }}
+          – {{ reservation.end_time|date:"H:i" }}</li>
+    </ul>
+    <p>See you then!</p>
+  </body>
+</html>

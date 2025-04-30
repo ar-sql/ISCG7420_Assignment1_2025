@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Log In{% endblock %}
+{% block content %}
+  <div class="column is-half is-offset-one-quarter">
+    <h1 class="title">Log In</h1>
+    <form method="post">{% csrf_token %}
+      {{ form.as_p }}
+      <button class="button is-link">Log In</button>
+    </form>
+  </div>
+{% endblock %}

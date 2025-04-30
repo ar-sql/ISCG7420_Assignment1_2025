@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Conference Booking{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+</head>
+<body>
+  <nav class="navbar is-light">
+    <div class="navbar-start">
+      <a class="navbar-item" href="{% url 'home' %}">Home</a>
+      <a class="navbar-item" href="{% url 'room_list' %}">Rooms</a>
+      <a class="navbar-item" href="{% url 'room_status' %}">Status</a>
+      <a class="navbar-item"
+         href="{% url 'admin:index' %}"
+         target="_blank"
+         rel="noopener">
+        Admin
+      </a>
+    </div>
+    <div class="navbar-end">
+      {% if user.is_authenticated %}
+        <a class="navbar-item" href="{% url 'my_reservations' %}">My Reservations</a>
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+          {% csrf_token %}
+          <button class="navbar-item button is-white" type="submit">Logout</button>
+        </form>
+      {% else %}
+        <a class="navbar-item" href="{% url 'login' %}">Login</a>
+        <a class="navbar-item" href="{% url 'register' %}">Register</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <section class="section">
+    <div class="container">
+      {% for msg in messages %}
+        <div class="notification">{{ msg }}</div>
+      {% endfor %}
+      {% block content %}{% endblock %}
+    </div>
+  </section>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

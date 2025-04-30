@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <p>Hello {{ reservation.user.username }},</p>
+    <p>Your reservation for <strong>{{ reservation.room.name }}</strong> has been <strong>confirmed</strong>!</p>
+    <p>
+      <strong>When:</strong>
+      {{ reservation.start_time|date:"Y-m-d H:i" }}
+      – {{ reservation.end_time|date:"H:i" }}
+    </p>
+    <p>Thank you for using Conference Reservations.</p>
+  </body>
+</html>

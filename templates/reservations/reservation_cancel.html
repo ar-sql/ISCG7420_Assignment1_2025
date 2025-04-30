@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Cancel Reservation{% endblock %}
+{% block content %}
+  <h1 class="title">Cancel Reservation</h1>
+  <p>Are you sure you want to cancel your reservation for
+     <strong>{{ reservation.room.name }}</strong>
+     from {{ reservation.start_time }} to {{ reservation.end_time }}?</p>
+  <form method="post">{% csrf_token %}
+    <button class="button is-danger">Yes, Cancel</button>
+    <a class="button" href="{% url 'my_reservations' %}">No, Go Back</a>
+  </form>
+{% endblock %}

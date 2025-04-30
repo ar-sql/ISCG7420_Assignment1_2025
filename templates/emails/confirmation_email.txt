@@ -1,0 +1,7 @@
+Hello {{ reservation.user.username }},
+
+Your reservation for "{{ reservation.room.name }}" has been confirmed!
+
+When: {{ reservation.start_time|date:"Y-m-d H:i" }} – {{ reservation.end_time|date:"H:i" }}
+
+Thank you for using Conference Reservations.

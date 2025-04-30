@@ -1,0 +1,44 @@
+Content-Type: multipart/alternative;
+ boundary="===============6623587078147220018=="
+MIME-Version: 1.0
+Subject: Your Room Reservation is Confirmed
+From: webmaster@localhost
+To: arishay.r16@gmail.com
+Date: Tue, 29 Apr 2025 08:10:41 -0000
+Message-ID: <174591424193.14324.1871046324660963947@Arishay.hub>
+
+--===============6623587078147220018==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+
+Hello dummyuser101,
+
+Your reservation for "Room 9" has been confirmed!
+
+When: 2025-04-29 20:15 – 21:10
+
+Thank you for using Conference Reservations.
+
+--===============6623587078147220018==
+Content-Type: text/html; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+
+<!DOCTYPE html>
+<html>
+  <body>
+    <p>Hello dummyuser101,</p>
+    <p>Your reservation for <strong>Room 9</strong> has been <strong>confirmed</strong>!</p>
+    <p>
+      <strong>When:</strong>
+      2025-04-29 20:15
+      – 21:10
+    </p>
+    <p>Thank you for using Conference Reservations.</p>
+  </body>
+</html>
+
+--===============6623587078147220018==--
+
+-------------------------------------------------------------------------------

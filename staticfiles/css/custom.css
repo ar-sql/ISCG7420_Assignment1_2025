@@ -1,0 +1,59 @@
+/* ----------------------------------
+   Global Overrides
+   ---------------------------------- */
+/* Light gray page background */
+body {
+  background-color: #f5f5f5;
+}
+
+/* Navbar styling */
+.navbar.is-light {
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Default card shadow & transparent border */
+.card {
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  border: 2px solid transparent;
+}
+
+/* ----------------------------------
+   Status Tags
+   ---------------------------------- */
+/* Red “Occupied Now” tag */
+.tag.is-danger {
+  background-color: #ff3860 !important;
+  color: white !important;
+}
+/* Light red “Occupied Now” tag (if you want a lighter tag) */
+.tag.is-danger.is-light {
+  background-color: #ffe3e3 !important;
+  color: #ff3860 !important;
+}
+
+/* Green “Available Now” tag */
+.tag.is-success {
+  background-color: #23d160 !important;
+  color: white !important;
+}
+/* Light green “Available Now” tag */
+.tag.is-success.is-light {
+  background-color: #e3ffe3 !important;
+  color: #23d160 !important;
+}
+
+/* ----------------------------------
+   Status Card Borders
+   ---------------------------------- */
+/* Red border for occupied rooms */
+.card.has-background-danger-light {
+  border-color: #ff3860;
+  background-color: white !important;
+}
+
+/* Green border for available rooms */
+.card.has-background-success-light {
+  border-color: #23d160;
+  background-color: white !important;
+}
