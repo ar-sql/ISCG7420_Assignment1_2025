@@ -92,6 +92,8 @@ LOGIN_URL           = 'login'
 EMAIL_BACKEND   = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 
+
+
 # In production, you might instead use SMTP:
 # EMAIL_BACKEND      = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST         = os.environ.get('EMAIL_HOST', 'smtp.example.com')
