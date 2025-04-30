@@ -3,33 +3,71 @@
 <head>
   <meta charset="UTF-8">
   <title>{% block title %}Conference Booking{% endblock %}</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+
+  <!-- Bulma CSS -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
+  />
+
+  <!-- Font Awesome Kit -->
+  <script
+    src="https://kit.fontawesome.com/c2431e4575.js"
+    crossorigin="anonymous"
+  ></script>
+
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/custom.css' %}">
 </head>
+
 <body>
-  <nav class="navbar is-light">
+  <nav class="navbar is-light" role="navigation" aria-label="main navigation">
     <div class="navbar-start">
-      <a class="navbar-item" href="{% url 'home' %}">Home</a>
-      <a class="navbar-item" href="{% url 'room_list' %}">Rooms</a>
-      <a class="navbar-item" href="{% url 'room_status' %}">Status</a>
-      <a class="navbar-item"
-         href="{% url 'admin:index' %}"
-         target="_blank"
-         rel="noopener">
-        Admin
+      <a class="navbar-item" href="{% url 'home' %}">
+        <span class="icon"><i class="fas fa-home"></i></span>
+        <span>Home</span>
+      </a>
+      <a class="navbar-item" href="{% url 'room_list' %}">
+        <span class="icon"><i class="fas fa-door-open"></i></span>
+        <span>Rooms</span>
+      </a>
+      <a class="navbar-item" href="{% url 'room_status' %}">
+        <span class="icon"><i class="fas fa-clock"></i></span>
+        <span>Status</span>
+      </a>
+      <a
+        class="navbar-item"
+        href="{% url 'admin:index' %}"
+        target="_blank"
+        rel="noopener"
+      >
+        <span class="icon"><i class="fas fa-cog"></i></span>
+        <span>Admin</span>
       </a>
     </div>
+
     <div class="navbar-end">
       {% if user.is_authenticated %}
-        <a class="navbar-item" href="{% url 'my_reservations' %}">My Reservations</a>
+        <a class="navbar-item" href="{% url 'my_reservations' %}">
+          <span class="icon"><i class="fas fa-calendar-check"></i></span>
+          <span>My Reservations</span>
+        </a>
         <form method="post" action="{% url 'logout' %}" style="display:inline;">
           {% csrf_token %}
-          <button class="navbar-item button is-white" type="submit">Logout</button>
+          <button class="navbar-item button is-white" type="submit">
+            <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
+            <span>Logout</span>
+          </button>
         </form>
       {% else %}
-        <a class="navbar-item" href="{% url 'login' %}">Login</a>
-        <a class="navbar-item" href="{% url 'register' %}">Register</a>
+        <a class="navbar-item" href="{% url 'login' %}">
+          <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
+          <span>Login</span>
+        </a>
+        <a class="navbar-item" href="{% url 'register' %}">
+          <span class="icon"><i class="fas fa-user-plus"></i></span>
+          <span>Register</span>
+        </a>
       {% endif %}
     </div>
   </nav>
