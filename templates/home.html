@@ -1,12 +1,10 @@
 {% extends 'base.html' %}
-{% block title %}Home{% endblock %}
+{% block title %}Conference Room Reservation System{% endblock %}
 
 {% block content %}
   {% if reminder %}
     <article class="message is-info">
-      <div class="message-header">
-        Reminder
-      </div>
+      <div class="message-header">Reminder</div>
       <div class="message-body">
         You have a reservation tomorrow at
         <strong>{{ reminder.start_time|date:"Y-m-d H:i" }}</strong>
@@ -15,20 +13,41 @@
     </article>
   {% endif %}
 
-  <section class="hero is-light">
-    <div class="hero-body">
-      <div class="container has-text-centered">
-        <h1 class="title">Welcome to Conference Reservations</h1>
-        <p class="subtitle">View rooms or log in to book your spot.</p>
-        <div class="buttons is-centered">
-          <a class="button is-primary" href="{% url 'room_list' %}">View Rooms</a>
-          {% if user.is_authenticated %}
-            <a class="button is-link" href="{% url 'my_reservations' %}">My Reservations</a>
-          {% else %}
-            <a class="button is-info" href="{% url 'login' %}">Log In</a>
-            <a class="button is-warning" href="{% url 'register' %}">Register</a>
-          {% endif %}
-        </div>
+  <section class="section">
+    <div class="container">
+      <h1 class="title">Te Whare Rūnanga Ltd</h1>
+      <h2 class="subtitle">Conference Room Reservation System</h2>
+
+      <p>Welcome to the official booking portal for Te Whare Rūnanga Ltd’s ten conference rooms. Whether you need a small meeting space or a large workshop venue, our system lets you:</p>
+
+      <ul>
+        <li>👀 View all available conference rooms in real time</li>
+        <li>🗓️ Book a room for a specific date &amp; time (up to 1 hour)</li>
+        <li>✏️ Edit or cancel your existing reservations</li>
+        <li>📧 Receive instant confirmation and 24-hour reminder emails</li>
+        <li>🔒 Secure login and administrator tools for managing rooms and users</li>
+      </ul>
+
+      <div class="buttons mt-5">
+        {% if user.is_authenticated %}
+          <a class="button is-primary" href="{% url 'room_list' %}">
+            <span class="icon"><i class="fas fa-door-open"></i></span>
+            <span>View Rooms</span>
+          </a>
+          <a class="button is-link" href="{% url 'my_reservations' %}">
+            <span class="icon"><i class="fas fa-calendar-check"></i></span>
+            <span>My Reservations</span>
+          </a>
+        {% else %}
+          <a class="button is-info" href="{% url 'login' %}">
+            <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
+            <span>Login</span>
+          </a>
+          <a class="button is-warning" href="{% url 'register' %}">
+            <span class="icon"><i class="fas fa-user-plus"></i></span>
+            <span>Register</span>
+          </a>
+        {% endif %}
       </div>
     </div>
   </section>
