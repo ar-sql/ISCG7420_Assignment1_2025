@@ -137,3 +137,29 @@ footer {
   height: 2.5rem;
   padding: 0;
 }
+
+/* Login page background and card styling */
+.login-background {
+  background-color: #f0f4f8;
+  min-height: 100vh;
+  padding-top: 3rem;
+}
+
+.login-card {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card-header-title {
+  width: 100%;
+  justify-content: center;
+}
+
+.input:focus {
+  border-color: #3273dc;
+}
+
+.button.is-primary {
+  background-color: #3273dc;
+  border-color: transparent;
+}
