@@ -1,22 +1,21 @@
-from datetime import datetime, time, timedelta
-from django.shortcuts import render, get_object_or_404, redirect
+from datetime import datetime, date, time, timedelta
+from django.shortcuts               import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login
-from django.contrib.auth.views import redirect_to_login
-from django.contrib import messages
-from django.utils import timezone
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
+from django.contrib.auth            import login
+from django.contrib.auth.views      import redirect_to_login
+from django.contrib                 import messages
+from django.utils                   import timezone
+from django.core.mail               import send_mail
+from django.template.loader         import render_to_string
 
 from .models import Room, Reservation
-from .forms import ReservationForm, RegisterForm
+from .forms  import ReservationForm, RegisterForm
 
 # Māori names for rooms 1–10
 MAORI_NUMBERS = {
-    1: 'Tahi', 2: 'Rua',    3: 'Toru', 4: 'Whā',  5: 'Rima',
-    6: 'Ono',  7: 'Whitu',  8: 'Waru', 9: 'Iwa', 10: 'Tekau',
+    1: 'Tahi', 2: 'Rua', 3: 'Toru', 4: 'Whā', 5: 'Rima',
+    6: 'Ono', 7: 'Whitu', 8: 'Waru', 9: 'Iwa', 10: 'Tekau',
 }
-
 
 def home(request):
     reminder = None
@@ -31,7 +30,6 @@ def home(request):
             .first()
         )
     return render(request, 'home.html', {'reminder': reminder})
-
 
 def register(request):
     if request.method == 'POST':
@@ -56,13 +54,11 @@ def register(request):
         form = RegisterForm()
     return render(request, 'registration/register.html', {'form': form})
 
-
 def room_list(request):
     rooms = list(Room.objects.all().order_by('pk'))
     for room in rooms:
         room.display_name = MAORI_NUMBERS.get(room.pk, room.name)
     return render(request, 'reservations/room_list.html', {'rooms': rooms})
-
 
 def room_detail(request, pk):
     room = get_object_or_404(Room, pk=pk)
@@ -108,7 +104,6 @@ def room_detail(request, pk):
         'upcoming': upcoming,
     })
 
-
 @login_required
 def my_reservations(request):
     reservations = (
@@ -118,7 +113,6 @@ def my_reservations(request):
     )
     return render(request, 'reservations/my_reservations.html',
                   {'reservations': reservations})
-
 
 @login_required
 def reservation_edit(request, pk):
@@ -145,7 +139,6 @@ def reservation_edit(request, pk):
         'form':        form,
     })
 
-
 @login_required
 def reservation_cancel(request, pk):
     res = get_object_or_404(Reservation, pk=pk, user=request.user)
@@ -156,39 +149,51 @@ def reservation_cancel(request, pk):
     return render(request, 'reservations/reservation_cancel.html',
                   {'reservation': res})
 
-
 def room_status(request):
-    # pick date or default
+    """
+    Display a grid of rooms vs hourly slots (08:00–18:00).
+    Users can browse any date via ?date=YYYY-MM-DD
+    """
+    # 1) pick a date
     date_str = request.GET.get('date')
     if date_str:
-        date = datetime.fromisoformat(date_str).date()
+        try:
+            selected = date.fromisoformat(date_str)
+        except ValueError:
+            selected = timezone.localtime().date()
     else:
-        date = timezone.localtime().date()
+        selected = timezone.localtime().date()
 
-    # build hourly slots from 08:00 to 18:00
+    # navigation dates
+    prev_date = selected - timedelta(days=1)
+    next_date = selected + timedelta(days=1)
+
+    # 2) build hourly slots
     tz = timezone.get_current_timezone()
     slots = []
-    for h in range(8, 18):
-        start = datetime.combine(date, time(h, 0)).replace(tzinfo=tz)
+    for hour in range(8, 18):
+        start = datetime.combine(selected, time(hour, 0)).replace(tzinfo=tz)
         end   = start + timedelta(hours=1)
         slots.append((start, end))
 
-    # build table rows
+    # 3) build table rows
     table = []
     for room in Room.objects.order_by('pk'):
         display = MAORI_NUMBERS.get(room.pk, room.name)
         statuses = []
         for slot_start, slot_end in slots:
-            occ = Reservation.objects.filter(
+            occupied = Reservation.objects.filter(
                 room=room,
                 start_time__lt=slot_end,
                 end_time__gt=slot_start
             ).exists()
-            statuses.append(occ)
+            statuses.append(occupied)
         table.append({'display': display, 'statuses': statuses})
 
     return render(request, 'reservations/room_status.html', {
-        'date':  date,
-        'slots': slots,
-        'table': table,
+        'date':      selected,
+        'prev_date': prev_date,
+        'next_date': next_date,
+        'slots':     slots,
+        'table':     table,
     })
