@@ -9,9 +9,15 @@
 
   <form method="get" class="field has-addons mb-4">
     <div class="control">
-      <a class="button" href="?date={{ prev_date|date:'Y-m-d' }}">
-        <span class="icon"><i class="fas fa-arrow-left"></i></span>
-      </a>
+      {% if prev_date %}
+        <a class="button" href="?date={{ prev_date|date:'Y-m-d' }}">
+          <span class="icon"><i class="fas fa-arrow-left"></i></span>
+        </a>
+      {% else %}
+        <button class="button" disabled>
+          <span class="icon"><i class="fas fa-arrow-left"></i></span>
+        </button>
+      {% endif %}
     </div>
     <div class="control">
       <input
@@ -19,6 +25,7 @@
         type="date"
         name="date"
         value="{{ date|date:'Y-m-d' }}"
+        min="{{ today|date:'Y-m-d' }}"
       />
     </div>
     <div class="control">
@@ -45,9 +52,7 @@
         <tr>
           <td>{{ row.display }}</td>
           {% for occupied in row.statuses %}
-            <td
-              class="{% if occupied %}has-background-danger{% else %}has-background-success{% endif %}"
-            ></td>
+            <td class="{% if occupied %}has-background-danger{% else %}has-background-success{% endif %}"></td>
           {% endfor %}
         </tr>
       {% endfor %}
