@@ -7,6 +7,30 @@
     Availability – {{ date }}
   </h1>
 
+  <form method="get" class="field has-addons mb-4">
+    <div class="control">
+      <a class="button" href="?date={{ prev_date|date:'Y-m-d' }}">
+        <span class="icon"><i class="fas fa-arrow-left"></i></span>
+      </a>
+    </div>
+    <div class="control">
+      <input
+        class="input"
+        type="date"
+        name="date"
+        value="{{ date|date:'Y-m-d' }}"
+      />
+    </div>
+    <div class="control">
+      <button class="button is-link" type="submit">Go</button>
+    </div>
+    <div class="control">
+      <a class="button" href="?date={{ next_date|date:'Y-m-d' }}">
+        <span class="icon"><i class="fas fa-arrow-right"></i></span>
+      </a>
+    </div>
+  </form>
+
   <table class="table is-fullwidth is-bordered">
     <thead>
       <tr>
@@ -22,11 +46,7 @@
           <td>{{ row.display }}</td>
           {% for occupied in row.statuses %}
             <td
-              class="{% if occupied %}
-                        has-background-danger
-                      {% else %}
-                        has-background-success
-                      {% endif %}"
+              class="{% if occupied %}has-background-danger{% else %}has-background-success{% endif %}"
             ></td>
           {% endfor %}
         </tr>
