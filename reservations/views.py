@@ -153,8 +153,8 @@ def reservation_cancel(request, pk):
 
 def room_status(request):
     """
-    Display a grid of rooms vs hourly slots (08:00–18:00).
-    Users can browse any date >= today via ?date=YYYY-MM-DD
+    Display a grid of rooms vs hourly slots (08:00–18:00) with
+    time-of-day headers and disable past-date navigation.
     """
     today    = timezone.localtime().date()
     date_str = request.GET.get('date')
@@ -171,29 +171,44 @@ def room_status(request):
 
     tz    = timezone.get_current_timezone()
     slots = []
+    hours = []
     for hour in range(8, 18):
         start = datetime.combine(selected, time(hour, 0)).replace(tzinfo=tz)
         end   = start + timedelta(hours=1)
         slots.append((start, end))
+        hours.append(hour)
+
+    # define time-of-day groups
+    periods = [
+        ('Morning',   range(8, 12)),
+        ('Afternoon', range(12, 17)),
+        ('Evening',   range(17, 18)),
+    ]
+    groups = []
+    for label, hr_range in periods:
+        count = sum(1 for h in hours if h in hr_range)
+        if count:
+            groups.append({'label': label, 'count': count})
 
     table = []
     for room in Room.objects.order_by('pk'):
         display  = MAORI_NUMBERS.get(room.pk, room.name)
-        statuses = []
-        for slot_start, slot_end in slots:
-            occupied = Reservation.objects.filter(
+        statuses = [
+            Reservation.objects.filter(
                 room=room,
-                start_time__lt=slot_end,
-                end_time__gt=slot_start
+                start_time__lt=end,
+                end_time__gt=start
             ).exists()
-            statuses.append(occupied)
+            for start, end in slots
+        ]
         table.append({'display': display, 'statuses': statuses})
 
     return render(request, 'reservations/room_status.html', {
+        'today':     today,
         'date':      selected,
         'prev_date': prev_date,
         'next_date': next_date,
+        'groups':    groups,
         'slots':     slots,
         'table':     table,
-        'today':     today,
     })
