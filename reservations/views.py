@@ -1,26 +1,37 @@
-from datetime import datetime, timedelta
-from django.shortcuts               import render, get_object_or_404, redirect
+from datetime import datetime, time, timedelta
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth            import login
-from django.contrib.auth.views      import redirect_to_login
-from django.contrib                 import messages
-from django.utils                   import timezone
-from django.core.mail               import send_mail
-from django.template.loader         import render_to_string
+from django.contrib.auth import login
+from django.contrib.auth.views import redirect_to_login
+from django.contrib import messages
+from django.utils import timezone
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 
 from .models import Room, Reservation
-from .forms  import ReservationForm, RegisterForm
+from .forms import ReservationForm, RegisterForm
+
+# Māori names for rooms 1–10
+MAORI_NUMBERS = {
+    1: 'Tahi', 2: 'Rua',    3: 'Toru', 4: 'Whā',  5: 'Rima',
+    6: 'Ono',  7: 'Whitu',  8: 'Waru', 9: 'Iwa', 10: 'Tekau',
+}
+
 
 def home(request):
     reminder = None
     if request.user.is_authenticated:
         now = timezone.now()
-        reminder = Reservation.objects.filter(
-            user=request.user,
-            start_time__gte=now,
-            start_time__lt=now + timedelta(hours=24)
-        ).order_by('start_time').first()
+        reminder = (
+            Reservation.objects
+            .filter(user=request.user,
+                    start_time__gte=now,
+                    start_time__lt=now + timedelta(hours=24))
+            .order_by('start_time')
+            .first()
+        )
     return render(request, 'home.html', {'reminder': reminder})
+
 
 def register(request):
     if request.method == 'POST':
@@ -45,16 +56,23 @@ def register(request):
         form = RegisterForm()
     return render(request, 'registration/register.html', {'form': form})
 
+
 def room_list(request):
-    rooms = Room.objects.all()
+    rooms = list(Room.objects.all().order_by('pk'))
+    for room in rooms:
+        room.display_name = MAORI_NUMBERS.get(room.pk, room.name)
     return render(request, 'reservations/room_list.html', {'rooms': rooms})
+
 
 def room_detail(request, pk):
     room = get_object_or_404(Room, pk=pk)
-    upcoming = Reservation.objects.filter(
-        room=room,
-        end_time__gte=timezone.now()
-    ).order_by('start_time')
+    room.display_name = MAORI_NUMBERS.get(room.pk, room.name)
+
+    upcoming = (
+        Reservation.objects
+        .filter(room=room, end_time__gte=timezone.now())
+        .order_by('start_time')
+    )
 
     if request.method == 'POST':
         if not request.user.is_authenticated:
@@ -68,10 +86,11 @@ def room_detail(request, pk):
                 res.save()
                 # send confirmation email
                 ctx = {'reservation': res}
-                subject  = 'Your Room Reservation is Confirmed'
+                subject   = 'Your Room Reservation is Confirmed'
                 text_body = render_to_string('emails/confirmation_email.txt', ctx)
                 html_body = render_to_string('emails/confirmation_email.html', ctx)
-                send_mail(subject, text_body, None, [res.user.email], html_message=html_body)
+                send_mail(subject, text_body, None, [res.user.email],
+                          html_message=html_body)
                 messages.success(request, 'Reservation confirmed (email sent).')
                 return redirect('my_reservations')
             except Exception as e:
@@ -89,10 +108,17 @@ def room_detail(request, pk):
         'upcoming': upcoming,
     })
 
+
 @login_required
 def my_reservations(request):
-    reservations = Reservation.objects.filter(user=request.user).order_by('start_time')
-    return render(request, 'reservations/my_reservations.html', {'reservations': reservations})
+    reservations = (
+        Reservation.objects
+        .filter(user=request.user)
+        .order_by('start_time')
+    )
+    return render(request, 'reservations/my_reservations.html',
+                  {'reservations': reservations})
+
 
 @login_required
 def reservation_edit(request, pk):
@@ -119,6 +145,7 @@ def reservation_edit(request, pk):
         'form':        form,
     })
 
+
 @login_required
 def reservation_cancel(request, pk):
     res = get_object_or_404(Reservation, pk=pk, user=request.user)
@@ -126,37 +153,42 @@ def reservation_cancel(request, pk):
         res.delete()
         messages.success(request, 'Reservation cancelled.')
         return redirect('my_reservations')
-    return render(request, 'reservations/reservation_cancel.html', {'reservation': res})
+    return render(request, 'reservations/reservation_cancel.html',
+                  {'reservation': res})
+
 
 def room_status(request):
-    slot_s = request.GET.get('slot_start')
-    slot_e = request.GET.get('slot_end')
-    try:
-        start = datetime.fromisoformat(slot_s) if slot_s else timezone.now()
-    except (TypeError, ValueError):
-        start = timezone.now()
-    end = (datetime.fromisoformat(slot_e)
-           if slot_e else start + timedelta(hours=1))
+    # pick date or default
+    date_str = request.GET.get('date')
+    if date_str:
+        date = datetime.fromisoformat(date_str).date()
+    else:
+        date = timezone.localtime().date()
 
-    status_list = []
-    for room in Room.objects.all():
-        occupied = Reservation.objects.filter(
-            room=room,
-            start_time__lt=end,
-            end_time__gt=start
-        ).exists()
-        next_res = Reservation.objects.filter(
-            room=room,
-            start_time__gte=end
-        ).order_by('start_time').first()
-        status_list.append({
-            'room':     room,
-            'occupied': occupied,
-            'next_res': next_res,
-        })
+    # build hourly slots from 08:00 to 18:00
+    tz = timezone.get_current_timezone()
+    slots = []
+    for h in range(8, 18):
+        start = datetime.combine(date, time(h, 0)).replace(tzinfo=tz)
+        end   = start + timedelta(hours=1)
+        slots.append((start, end))
+
+    # build table rows
+    table = []
+    for room in Room.objects.order_by('pk'):
+        display = MAORI_NUMBERS.get(room.pk, room.name)
+        statuses = []
+        for slot_start, slot_end in slots:
+            occ = Reservation.objects.filter(
+                room=room,
+                start_time__lt=slot_end,
+                end_time__gt=slot_start
+            ).exists()
+            statuses.append(occ)
+        table.append({'display': display, 'statuses': statuses})
 
     return render(request, 'reservations/room_status.html', {
-        'status_list': status_list,
-        'slot_start':  start,
-        'slot_end':    end,
+        'date':  date,
+        'slots': slots,
+        'table': table,
     })
