@@ -13,8 +13,8 @@ from .forms  import ReservationForm, RegisterForm
 
 # Māori names for rooms 1–10
 MAORI_NUMBERS = {
-    1: 'Tahi', 2: 'Rua', 3: 'Toru', 4: 'Whā', 5: 'Rima',
-    6: 'Ono', 7: 'Whitu', 8: 'Waru', 9: 'Iwa', 10: 'Tekau',
+    1: 'Tahi',   2: 'Rua',    3: 'Toru',  4: 'Whā',   5: 'Rima',
+    6: 'Ono',    7: 'Whitu',  8: 'Waru',  9: 'Iwa',  10: 'Tekau',
 }
 
 def home(request):
@@ -23,9 +23,11 @@ def home(request):
         now = timezone.now()
         reminder = (
             Reservation.objects
-            .filter(user=request.user,
-                    start_time__gte=now,
-                    start_time__lt=now + timedelta(hours=24))
+            .filter(
+                user=request.user,
+                start_time__gte=now,
+                start_time__lt=now + timedelta(hours=24)
+            )
             .order_by('start_time')
             .first()
         )
@@ -152,34 +154,31 @@ def reservation_cancel(request, pk):
 def room_status(request):
     """
     Display a grid of rooms vs hourly slots (08:00–18:00).
-    Users can browse any date via ?date=YYYY-MM-DD
+    Users can browse any date >= today via ?date=YYYY-MM-DD
     """
-    # 1) pick a date
+    today    = timezone.localtime().date()
     date_str = request.GET.get('date')
     if date_str:
         try:
             selected = date.fromisoformat(date_str)
         except ValueError:
-            selected = timezone.localtime().date()
+            selected = today
     else:
-        selected = timezone.localtime().date()
+        selected = today
 
-    # navigation dates
-    prev_date = selected - timedelta(days=1)
+    prev_date = (selected - timedelta(days=1)) if selected > today else None
     next_date = selected + timedelta(days=1)
 
-    # 2) build hourly slots
-    tz = timezone.get_current_timezone()
+    tz    = timezone.get_current_timezone()
     slots = []
     for hour in range(8, 18):
         start = datetime.combine(selected, time(hour, 0)).replace(tzinfo=tz)
         end   = start + timedelta(hours=1)
         slots.append((start, end))
 
-    # 3) build table rows
     table = []
     for room in Room.objects.order_by('pk'):
-        display = MAORI_NUMBERS.get(room.pk, room.name)
+        display  = MAORI_NUMBERS.get(room.pk, room.name)
         statuses = []
         for slot_start, slot_end in slots:
             occupied = Reservation.objects.filter(
@@ -196,4 +195,5 @@ def room_status(request):
         'next_date': next_date,
         'slots':     slots,
         'table':     table,
+        'today':     today,
     })
