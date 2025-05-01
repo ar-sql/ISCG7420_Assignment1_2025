@@ -1,11 +1,83 @@
 {% extends 'base.html' %}
-{% block title %}Log In{% endblock %}
+{% block title %}Login{% endblock %}
+
 {% block content %}
-  <div class="column is-half is-offset-one-quarter">
-    <h1 class="title">Log In</h1>
-    <form method="post">{% csrf_token %}
-      {{ form.as_p }}
-      <button class="button is-link">Log In</button>
-    </form>
+<section class="section login-background">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-5-tablet is-4-desktop is-3-widescreen">
+        <div class="card login-card">
+          <header class="card-header">
+            <p class="card-header-title has-text-centered is-size-4">
+              <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
+              <span>Log In</span>
+            </p>
+          </header>
+          <div class="card-content">
+            <form method="post" novalidate>
+              {% csrf_token %}
+              {% if form.non_field_errors %}
+                <div class="notification is-danger">
+                  {{ form.non_field_errors }}
+                </div>
+              {% endif %}
+              <div class="field">
+                <label class="label" for="id_username">Username</label>
+                <div class="control has-icons-left">
+                  <input
+                    class="input"
+                    type="text"
+                    name="username"
+                    id="id_username"
+                    placeholder="Enter your username"
+                    required
+                  />
+                  <span class="icon is-small is-left">
+                    <i class="fas fa-user"></i>
+                  </span>
+                </div>
+                {% if form.username.errors %}
+                  <p class="help is-danger">{{ form.username.errors.0 }}</p>
+                {% endif %}
+              </div>
+
+              <div class="field">
+                <label class="label" for="id_password">Password</label>
+                <div class="control has-icons-left">
+                  <input
+                    class="input"
+                    type="password"
+                    name="password"
+                    id="id_password"
+                    placeholder="Enter your password"
+                    required
+                  />
+                  <span class="icon is-small is-left">
+                    <i class="fas fa-lock"></i>
+                  </span>
+                </div>
+                {% if form.password.errors %}
+                  <p class="help is-danger">{{ form.password.errors.0 }}</p>
+                {% endif %}
+              </div>
+
+              <div class="field mt-5">
+                <div class="control">
+                  <button class="button is-primary is-fullwidth is-medium">
+                    Log In
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <footer class="card-footer">
+            <a class="card-footer-item" href="{% url 'register' %}">
+              Create Account
+            </a>
+          </footer>
+        </div>
+      </div>
+    </div>
   </div>
+</section>
 {% endblock %}
