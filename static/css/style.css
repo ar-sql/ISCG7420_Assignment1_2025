@@ -130,7 +130,7 @@ footer {
 }
 
 
-/* ensure each hour‐cell is square-ish */
+/* make each hour‐cell a consistent size */
 .table td.has-background-success,
 .table td.has-background-danger {
   width: 4rem;
