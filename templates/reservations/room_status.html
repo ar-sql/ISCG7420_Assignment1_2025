@@ -41,7 +41,12 @@
   <table class="table is-fullwidth is-bordered">
     <thead>
       <tr>
-        <th>Room</th>
+        <th rowspan="2">Room</th>
+        {% for group in groups %}
+          <th class="has-text-centered" colspan="{{ group.count }}">{{ group.label }}</th>
+        {% endfor %}
+      </tr>
+      <tr>
         {% for start, end in slots %}
           <th>{{ start|date:"H:i" }}</th>
         {% endfor %}
