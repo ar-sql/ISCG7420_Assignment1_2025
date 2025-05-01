@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Login{% endblock %}
+{% block title %}Register{% endblock %}
 
 {% block content %}
 <section class="section login-background">
@@ -9,8 +9,8 @@
         <div class="card login-card">
           <header class="card-header">
             <p class="card-header-title has-text-centered is-size-4">
-              <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
-              <span>Log In</span>
+              <span class="icon"><i class="fas fa-user-plus"></i></span>
+              <span>Create Account</span>
             </p>
           </header>
           <div class="card-content">
@@ -21,6 +21,7 @@
                   {{ form.non_field_errors }}
                 </div>
               {% endif %}
+
               <div class="field">
                 <label class="label" for="id_username">Username</label>
                 <div class="control has-icons-left">
@@ -29,50 +30,134 @@
                     type="text"
                     name="username"
                     id="id_username"
-                    placeholder="Enter your username"
+                    value="{{ form.username.value|default_if_none:'' }}"
+                    placeholder="Choose a username"
                     required
                   />
                   <span class="icon is-small is-left">
                     <i class="fas fa-user"></i>
                   </span>
                 </div>
-                {% if form.username.errors %}
-                  <p class="help is-danger">{{ form.username.errors.0 }}</p>
-                {% endif %}
+                {% for err in form.username.errors %}
+                  <p class="help is-danger">{{ err }}</p>
+                {% endfor %}
               </div>
 
               <div class="field">
-                <label class="label" for="id_password">Password</label>
+                <label class="label" for="id_email">Email</label>
+                <div class="control has-icons-left">
+                  <input
+                    class="input"
+                    type="email"
+                    name="email"
+                    id="id_email"
+                    value="{{ form.email.value|default_if_none:'' }}"
+                    placeholder="you@example.com"
+                    required
+                  />
+                  <span class="icon is-small is-left">
+                    <i class="fas fa-envelope"></i>
+                  </span>
+                </div>
+                {% for err in form.email.errors %}
+                  <p class="help is-danger">{{ err }}</p>
+                {% endfor %}
+              </div>
+
+              <div class="field">
+                <label class="label" for="id_first_name">First Name</label>
+                <div class="control has-icons-left">
+                  <input
+                    class="input"
+                    type="text"
+                    name="first_name"
+                    id="id_first_name"
+                    value="{{ form.first_name.value|default_if_none:'' }}"
+                    placeholder="Your first name"
+                    required
+                  />
+                  <span class="icon is-small is-left">
+                    <i class="fas fa-id-badge"></i>
+                  </span>
+                </div>
+                {% for err in form.first_name.errors %}
+                  <p class="help is-danger">{{ err }}</p>
+                {% endfor %}
+              </div>
+
+              <div class="field">
+                <label class="label" for="id_last_name">Last Name</label>
+                <div class="control has-icons-left">
+                  <input
+                    class="input"
+                    type="text"
+                    name="last_name"
+                    id="id_last_name"
+                    value="{{ form.last_name.value|default_if_none:'' }}"
+                    placeholder="Your last name"
+                    required
+                  />
+                  <span class="icon is-small is-left">
+                    <i class="fas fa-id-badge"></i>
+                  </span>
+                </div>
+                {% for err in form.last_name.errors %}
+                  <p class="help is-danger">{{ err }}</p>
+                {% endfor %}
+              </div>
+
+              <div class="field">
+                <label class="label" for="id_password1">Password</label>
                 <div class="control has-icons-left">
                   <input
                     class="input"
                     type="password"
-                    name="password"
-                    id="id_password"
-                    placeholder="Enter your password"
+                    name="password1"
+                    id="id_password1"
+                    placeholder="Create a password"
                     required
                   />
                   <span class="icon is-small is-left">
                     <i class="fas fa-lock"></i>
                   </span>
                 </div>
-                {% if form.password.errors %}
-                  <p class="help is-danger">{{ form.password.errors.0 }}</p>
-                {% endif %}
+                {% for err in form.password1.errors %}
+                  <p class="help is-danger">{{ err }}</p>
+                {% endfor %}
+              </div>
+
+              <div class="field">
+                <label class="label" for="id_password2">Confirm Password</label>
+                <div class="control has-icons-left">
+                  <input
+                    class="input"
+                    type="password"
+                    name="password2"
+                    id="id_password2"
+                    placeholder="Repeat your password"
+                    required
+                  />
+                  <span class="icon is-small is-left">
+                    <i class="fas fa-lock"></i>
+                  </span>
+                </div>
+                {% for err in form.password2.errors %}
+                  <p class="help is-danger">{{ err }}</p>
+                {% endfor %}
               </div>
 
               <div class="field mt-5">
                 <div class="control">
                   <button class="button is-primary is-fullwidth is-medium">
-                    Log In
+                    Create Account
                   </button>
                 </div>
               </div>
             </form>
           </div>
           <footer class="card-footer">
-            <a class="card-footer-item" href="{% url 'register' %}">
-              Create Account
+            <a class="card-footer-item" href="{% url 'login' %}">
+              Already have an account? Log in
             </a>
           </footer>
         </div>
