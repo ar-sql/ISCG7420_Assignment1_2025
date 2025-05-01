@@ -1,53 +1,36 @@
-{# templates/reservations/room_status.html #}
 {% extends 'base.html' %}
-{% block title %}Check Room Availability{% endblock %}
+{% block title %}Availability for {{ date }}{% endblock %}
+
 {% block content %}
-  <h1 class="title">Check Room Availability</h1>
+  <h1 class="title">
+    <span class="icon"><i class="fas fa-calendar-day"></i></span>
+    Availability – {{ date }}
+  </h1>
 
-  <form method="get" class="mb-5">
-    <div class="field is-grouped">
-      <p class="control">
-        <label class="label">Start</label>
-        <input class="input" type="datetime-local" name="slot_start"
-               value="{{ slot_start|date:'Y-m-d\\TH:i' }}">
-      </p>
-      <p class="control">
-        <label class="label">End</label>
-        <input class="input" type="datetime-local" name="slot_end"
-               value="{{ slot_end|date:'Y-m-d\\TH:i' }}">
-      </p>
-      <p class="control" style="align-self:flex-end;">
-        <button class="button is-primary" type="submit">Check Availability</button>
-      </p>
-    </div>
-  </form>
-
-  <div class="columns is-multiline">
-    {% for item in status_list %}
-      <div class="column is-one-quarter">
-        <div class="card {% if item.occupied %}has-background-danger-light{% else %}has-background-success-light{% endif %}">
-          <div class="card-content">
-            <p class="title">{{ item.room.name }}</p>
-            <p class="subtitle">{{ item.room.location }} | Capacity: {{ item.room.capacity }}</p>
-            <div class="content">
-              {% if item.occupied %}
-                <span class="tag is-danger is-light">Occupied</span>
-              {% else %}
-                <span class="tag is-success is-light">Available</span>
-              {% endif %}
-            </div>
-            <div class="content">
-              <strong>Next after:</strong>
-              {% if item.next_res %}
-                {{ item.next_res.start_time|date:"Y-m-d H:i" }} –
-                {{ item.next_res.end_time|date:"H:i" }}
-              {% else %}
-                No upcoming
-              {% endif %}
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endfor %}
-  </div>
+  <table class="table is-fullwidth is-bordered">
+    <thead>
+      <tr>
+        <th>Room</th>
+        {% for start, end in slots %}
+          <th>{{ start|date:"H:i" }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in table %}
+        <tr>
+          <td>{{ row.display }}</td>
+          {% for occupied in row.statuses %}
+            <td
+              class="{% if occupied %}
+                        has-background-danger
+                      {% else %}
+                        has-background-success
+                      {% endif %}"
+            ></td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}
