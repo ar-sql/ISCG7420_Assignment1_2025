@@ -1,86 +1,78 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>{% block title %}Conference Booking{% endblock %}</title>
-
+  <title>{% block title %}Te Whare Rūnanga{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Bulma CSS -->
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
-  />
-
-  <!-- Font Awesome Kit -->
-  <script
-    src="https://kit.fontawesome.com/c2431e4575.js"
-    crossorigin="anonymous"
-  ></script>
-
-  {% load static %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <!-- Font Awesome -->
+  <script defer src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="{% static 'css/custom.css' %}">
 </head>
-
 <body>
   <nav class="navbar is-light" role="navigation" aria-label="main navigation">
-    <div class="navbar-start">
+    <div class="navbar-brand">
       <a class="navbar-item" href="{% url 'home' %}">
-        <span class="icon"><i class="fas fa-home"></i></span>
-        <span>Home</span>
+        Te Whare Rūnanga
       </a>
-      <a class="navbar-item" href="{% url 'room_list' %}">
-        <span class="icon"><i class="fas fa-door-open"></i></span>
-        <span>Rooms</span>
-      </a>
-      <a class="navbar-item" href="{% url 'room_status' %}">
-        <span class="icon"><i class="fas fa-clock"></i></span>
-        <span>Status</span>
-      </a>
-      <a
-        class="navbar-item"
-        href="{% url 'admin:index' %}"
-        target="_blank"
-        rel="noopener"
-      >
-        <span class="icon"><i class="fas fa-cog"></i></span>
-        <span>Admin</span>
+      <a role="button" class="navbar-burger" aria-label="menu"
+         aria-expanded="false" data-target="navMenu">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
       </a>
     </div>
 
-    <div class="navbar-end">
-      {% if user.is_authenticated %}
-        <a class="navbar-item" href="{% url 'my_reservations' %}">
-          <span class="icon"><i class="fas fa-calendar-check"></i></span>
-          <span>My Reservations</span>
-        </a>
-        <form method="post" action="{% url 'logout' %}" style="display:inline;">
-          {% csrf_token %}
-          <button class="navbar-item button is-white" type="submit">
+    <div id="navMenu" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="{% url 'home' %}">Home</a>
+        <a class="navbar-item" href="{% url 'room_list' %}">Rooms</a>
+        <a class="navbar-item" href="{% url 'room_status' %}">Status</a>
+        <a class="navbar-item" href="{% url 'admin_dashboard' %}">Admin Panel</a>
+      </div>
+
+      <div class="navbar-end">
+        {% if user.is_authenticated %}
+          <a class="navbar-item" href="{% url 'my_reservations' %}">
+            <span class="icon"><i class="fas fa-calendar-check"></i></span>
+            <span>My Reservations</span>
+          </a>
+          <a class="navbar-item" href="{% url 'logout' %}">
             <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
             <span>Logout</span>
-          </button>
-        </form>
-      {% else %}
-        <a class="navbar-item" href="{% url 'login' %}">
-          <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
-          <span>Login</span>
-        </a>
-        <a class="navbar-item" href="{% url 'register' %}">
-          <span class="icon"><i class="fas fa-user-plus"></i></span>
-          <span>Register</span>
-        </a>
-      {% endif %}
+          </a>
+        {% else %}
+          <a class="navbar-item" href="{% url 'login' %}">
+            <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
+            <span>Login</span>
+          </a>
+          <a class="navbar-item" href="{% url 'register' %}">
+            <span class="icon"><i class="fas fa-user-plus"></i></span>
+            <span>Register</span>
+          </a>
+        {% endif %}
+      </div>
     </div>
   </nav>
 
   <section class="section">
     <div class="container">
-      {% for msg in messages %}
-        <div class="notification">{{ msg }}</div>
-      {% endfor %}
       {% block content %}{% endblock %}
     </div>
   </section>
 
-  {% block extra_js %}{% endblock %}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const burger = document.querySelector('.navbar-burger');
+      const menu   = document.getElementById(burger.dataset.target);
+      burger.addEventListener('click', () => {
+        burger.classList.toggle('is-active');
+        menu.classList.toggle('is-active');
+      });
+    });
+  </script>
 </body>
 </html>
