@@ -3,6 +3,10 @@
 from django.urls import path, include
 
 urlpatterns = [
-    # no built‐in admin; all routes live in reservations.urls
+    # All application routes in reservations.urls
     path('', include('reservations.urls')),
+
+    # If you still need Django's built-in admin, mount it here:
+    # from django.contrib import admin
+    # path('django-admin/', admin.site.urls),
 ]
