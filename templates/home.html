@@ -1,83 +1,116 @@
 {% extends 'base.html' %}
-{% block title %}Welcome – Te Whare Rūnanga Ltd{% endblock %}
+{% load static %}
+
+{% block title %}Welcome – Te Whare Rūnanga{% endblock %}
 
 {% block content %}
-  {% if reminder %}
-    <article class="message is-info">
-      <div class="message-header">Reminder</div>
-      <div class="message-body">
-        You have a reservation tomorrow at
-        <strong>{{ reminder.start_time|date:"Y-m-d H:i" }}</strong>
-        in <strong>{{ reminder.room.name }}</strong>.
-      </div>
-    </article>
-  {% endif %}
+<!-- Smaller Hero Banner -->
+<section class="hero is-primary is-medium">
+  <div class="hero-body">
+    <div class="container has-text-centered">
+      <h1 class="title is-1">
+        Welcome to Conference Room Reservations
+      </h1>
+      <h2 class="subtitle is-4">
+        Quickly check availability and secure your spot.
+      </h2>
 
-  <!-- Hero Section -->
-  <section class="hero is-primary is-bold home-hero">
-    <div class="hero-body">
-      <div class="container has-text-centered">
-        <h1 class="title is-size-2-desktop is-size-3-tablet">Te Whare Rūnanga Ltd</h1>
-        <h2 class="subtitle is-size-4-desktop is-size-5-tablet">Conference Room Reservation System</h2>
-        <p class="mt-4">Book any of our ten rooms in just a few clicks. Secure, fast, and tailored to your needs.</p>
-        <div class="buttons is-centered mt-5">
-          <a class="button is-light is-medium" href="{% url 'room_list' %}">
-            <span class="icon"><i class="fas fa-door-open"></i></span>
-            <span>Browse Rooms</span>
+      <div class="buttons is-centered mt-5">
+        <a class="button is-light is-large" href="{% url 'room_status' %}">
+          <span class="icon"><i class="fas fa-calendar-alt"></i></span>
+          <span>View Availability</span>
+        </a>
+
+        {% if user.is_authenticated %}
+          <a class="button is-link is-large" href="{% url 'my_reservations' %}">
+            <span class="icon"><i class="fas fa-calendar-check"></i></span>
+            <span>My Reservations</span>
           </a>
-          {% if user.is_authenticated %}
-            <a class="button is-link is-medium" href="{% url 'my_reservations' %}">
-              <span class="icon"><i class="fas fa-calendar-check"></i></span>
-              <span>My Reservations</span>
-            </a>
-          {% else %}
-            <a class="button is-info is-medium" href="{% url 'login' %}">
-              <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
-              <span>Log In</span>
-            </a>
-            <a class="button is-warning is-medium" href="{% url 'register' %}">
-              <span class="icon"><i class="fas fa-user-plus"></i></span>
-              <span>Register</span>
-            </a>
-          {% endif %}
-        </div>
+        {% else %}
+          <a class="button is-info is-large" href="{% url 'login' %}">
+            <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
+            <span>Login</span>
+          </a>
+          <a class="button is-warning is-large" href="{% url 'register' %}">
+            <span class="icon"><i class="fas fa-user-plus"></i></span>
+            <span>Register</span>
+          </a>
+        {% endif %}
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Features Section -->
-  <section class="section">
-    <div class="container">
-      <h3 class="title is-3 has-text-centered">Features</h3>
-      <div class="columns is-multiline mt-4">
-        <div class="column is-4">
-          <div class="card feature-card">
-            <div class="card-content">
-              <span class="icon feature-icon"><i class="fas fa-eye"></i></span>
-              <h4 class="title is-4">Real‐time Availability</h4>
-              <p>See live room availability and book the perfect time slot.</p>
-            </div>
+<!-- Features Cards -->
+<section class="section">
+  <div class="container">
+    <div class="columns is-variable is-8">
+      <!-- Browse Rooms -->
+      <div class="column">
+        <div class="card">
+          <div class="card-content has-text-centered">
+            <span class="icon is-large has-text-primary">
+              <i class="fas fa-door-open fa-2x"></i>
+            </span>
+            <p class="title is-4 mt-2">Browse Rooms</p>
+            <p class="subtitle is-6">
+              See all conference rooms, photos, capacity, and amenities.
+            </p>
+            <a class="button is-primary mt-3" href="{% url 'room_status' %}">
+              View Availability
+            </a>
           </div>
         </div>
-        <div class="column is-4">
-          <div class="card feature-card">
-            <div class="card-content">
-              <span class="icon feature-icon"><i class="fas fa-calendar-plus"></i></span>
-              <h4 class="title is-4">Quick Booking</h4>
-              <p>Reserve any room in under a minute with our streamlined form.</p>
-            </div>
+      </div>
+
+      <!-- Make Reservations -->
+      <div class="column">
+        <div class="card">
+          <div class="card-content has-text-centered">
+            <span class="icon is-large has-text-success">
+              <i class="fas fa-calendar-plus fa-2x"></i>
+            </span>
+            <p class="title is-4 mt-2">Make Reservations</p>
+            <p class="subtitle is-6">
+              Pick a date &amp; time slot and reserve your space in one click.
+            </p>
+            {% if user.is_authenticated %}
+              <a class="button is-success mt-3" href="{% url 'room_status' %}">
+                Reserve Now
+              </a>
+            {% else %}
+              <a class="button is-success mt-3" href="{% url 'login' %}?next={% url 'room_status' %}">
+                Sign In to Reserve
+              </a>
+            {% endif %}
           </div>
         </div>
-        <div class="column is-4">
-          <div class="card feature-card">
-            <div class="card-content">
-              <span class="icon feature-icon"><i class="fas fa-bell"></i></span>
-              <h4 class="title is-4">Email Notifications</h4>
-              <p>Receive instant confirmations and 24-hour reminders automatically.</p>
-            </div>
+      </div>
+
+      <!-- Manage Bookings -->
+      <div class="column">
+        <div class="card">
+          <div class="card-content has-text-centered">
+            <span class="icon is-large has-text-link">
+              <i class="fas fa-calendar-check fa-2x"></i>
+            </span>
+            <p class="title is-4 mt-2">Manage Bookings</p>
+            <p class="subtitle is-6">
+              View, edit or cancel your existing reservations anytime.
+            </p>
+            {% if user.is_authenticated %}
+              <a class="button is-link mt-3" href="{% url 'my_reservations' %}">
+                My Reservations
+              </a>
+            {% else %}
+              <a class="button is-link mt-3" href="{% url 'login' %}?next={% url 'my_reservations' %}">
+                Sign In to View
+              </a>
+            {% endif %}
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 {% endblock %}
