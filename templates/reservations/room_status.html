@@ -1,68 +1,70 @@
 {% extends 'base.html' %}
-{% block title %}Availability for {{ date }}{% endblock %}
-
+{% block title %}Room Status – Te Whare Rūnanga{% endblock %}
 {% block content %}
-  <h1 class="title">
-    <span class="icon"><i class="fas fa-calendar-day"></i></span>
-    Availability – {{ date }}
-  </h1>
-
-  <form method="get" class="field has-addons mb-4">
-    <div class="control">
-      {% if prev_date %}
-        <a class="button" href="?date={{ prev_date|date:'Y-m-d' }}">
-          <span class="icon"><i class="fas fa-arrow-left"></i></span>
+<section class="section">
+  <div class="container">
+    <div class="level">
+      <div class="level-left">
+        <h1 class="title">Availability for {{ date|date:"Y-m-d" }}</h1>
+      </div>
+      <div class="level-right">
+        {% if prev_date %}
+          <a class="button" href="?date={{ prev_date|date:"Y-m-d" }}">
+            ← Previous
+          </a>
+        {% endif %}
+        <a class="button" href="?date={{ next_date|date:"Y-m-d" }}">
+          Next →
         </a>
-      {% else %}
-        <button class="button" disabled>
-          <span class="icon"><i class="fas fa-arrow-left"></i></span>
-        </button>
-      {% endif %}
+      </div>
     </div>
-    <div class="control">
-      <input
-        class="input"
-        type="date"
-        name="date"
-        value="{{ date|date:'Y-m-d' }}"
-        min="{{ today|date:'Y-m-d' }}"
-      />
-    </div>
-    <div class="control">
-      <button class="button is-link" type="submit">Go</button>
-    </div>
-    <div class="control">
-      <a class="button" href="?date={{ next_date|date:'Y-m-d' }}">
-        <span class="icon"><i class="fas fa-arrow-right"></i></span>
-      </a>
-    </div>
-  </form>
 
-  <table class="table is-fullwidth is-bordered">
-    <thead>
-      <tr>
-        <th rowspan="2">Room</th>
-        {% for group in groups %}
-          <th class="has-text-centered" colspan="{{ group.count }}">{{ group.label }}</th>
-        {% endfor %}
-      </tr>
-      <tr>
-        {% for start, end in slots %}
-          <th>{{ start|date:"H:i" }}</th>
-        {% endfor %}
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in table %}
+    <table class="table is-fullwidth is-striped">
+      <thead>
         <tr>
-          <td>{{ row.display }}</td>
-          {% for occupied in row.statuses %}
-            <td class="{% if occupied %}has-background-danger{% else %}has-background-success{% endif %}"></td>
+          <th>Room</th>
+          {% for group in groups %}
+            <th colspan="{{ group.count }}" class="has-text-centered">
+              {{ group.label }}
+            </th>
           {% endfor %}
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+        <tr>
+          <th></th>
+          {% for slot in slots %}
+            <th>{{ slot.0|time:"H:i" }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in table %}
+          <tr>
+            <td>
+              <strong>{{ row.display }}</strong><br>
+              Capacity: {{ row.room.capacity }}<br>
+              Location: {{ row.room.location }}
+            </td>
+            {% for start, available in row.slot_pairs %}
+              <td>
+                {% if available %}
+                  <a
+                    class="button is-small is-success"
+                    href="{% url 'quick_book'
+                      row.room_id
+                      date_str=date|date:'Y-m-d'
+                      hour=start|date:'G' %}"
+                  >
+                    Book
+                  </a>
+                {% else %}
+                  <button class="button is-small is-danger" disabled>X</button>
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
 {% endblock %}
-
-
