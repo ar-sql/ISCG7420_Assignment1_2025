@@ -1,5 +1,3 @@
-# reservations/views.py
-
 from datetime import datetime, date, time, timedelta
 
 from django.shortcuts               import render, get_object_or_404, redirect
@@ -22,7 +20,7 @@ from .forms  import (
     AdminUserChangeForm,
 )
 
-# ─── Helpers & Constants ──────────────────────────────────────────────────────
+# ─── Helpers ─────────────────────────────────────────────────────────────────
 
 MAORI_NUMBERS = {
     1: 'Tahi',   2: 'Rua',    3: 'Toru',  4: 'Whā',   5: 'Rima',
@@ -30,29 +28,24 @@ MAORI_NUMBERS = {
 }
 
 def admin_required(view_func):
-    """
-    Decorator to restrict a view to staff users only.
-    Unauthenticated users are sent to the login page.
-    """
     return user_passes_test(lambda u: u.is_staff, login_url='login')(view_func)
 
 
-# ─── Public / User Views ──────────────────────────────────────────────────────
+# ─── Public Views ─────────────────────────────────────────────────────────────
 
 def home(request):
-    """
-    Landing page. Shows a reminder of your next reservation within 24h (if any).
-    """
+    # ←── NEW: redirect staff straight into admin panel
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_dashboard')
+
     reminder = None
     if request.user.is_authenticated:
         now = timezone.now()
         reminder = (
             Reservation.objects
-            .filter(
-                user=request.user,
-                start_time__gte=now,
-                start_time__lt=now + timedelta(hours=24)
-            )
+            .filter(user=request.user,
+                    start_time__gte=now,
+                    start_time__lt=now + timedelta(hours=24))
             .order_by('start_time')
             .first()
         )
@@ -60,10 +53,6 @@ def home(request):
 
 
 def register(request):
-    """
-    User registration: collects username, email, names, password.
-    On success, logs the user in and redirects to room_list.
-    """
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
@@ -74,37 +63,29 @@ def register(request):
             try:
                 user.save()
                 login(request, user)
-                messages.success(request, 'Account created successfully! 🎉')
+                messages.success(request, 'Account created successfully!')
                 return redirect('room_list')
             except Exception as e:
-                messages.error(request, f'Error creating account: {e}')
+                messages.error(request, f'Error: {e}')
         else:
-            for field, errs in form.errors.items():
-                for err in errs:
-                    messages.error(request, f"{field}: {err}")
+            for f, errs in form.errors.items():
+                for e in errs:
+                    messages.error(request, f"{f}: {e}")
     else:
         form = RegisterForm()
     return render(request, 'registration/register.html', {'form': form})
 
 
 def room_list(request):
-    """
-    Show all conference rooms with Māori names.
-    """
     rooms = list(Room.objects.all().order_by('pk'))
-    for room in rooms:
-        room.display_name = MAORI_NUMBERS.get(room.pk, room.name)
+    for r in rooms:
+        r.display_name = MAORI_NUMBERS.get(r.pk, r.name)
     return render(request, 'reservations/room_list.html', {'rooms': rooms})
 
 
 def room_detail(request, pk):
-    """
-    Show details and upcoming bookings for a room; allow booking if logged in.
-    Sends confirmation email on success.
-    """
     room = get_object_or_404(Room, pk=pk)
     room.display_name = MAORI_NUMBERS.get(room.pk, room.name)
-
     upcoming = (
         Reservation.objects
         .filter(room=room, end_time__gte=timezone.now())
@@ -121,61 +102,50 @@ def room_detail(request, pk):
             try:
                 res.clean()
                 res.save()
-                # send confirmation email
                 ctx = {'reservation': res}
-                subject   = 'Your Room Reservation is Confirmed'
-                text_body = render_to_string('emails/confirmation_email.txt', ctx)
-                html_body = render_to_string('emails/confirmation_email.html', ctx)
-                send_mail(subject, text_body, None, [res.user.email],
-                          html_message=html_body)
-                messages.success(request, 'Reservation confirmed and emailed.')
+                subject = 'Reservation Confirmed'
+                txt     = render_to_string('emails/confirmation_email.txt', ctx)
+                html    = render_to_string('emails/confirmation_email.html', ctx)
+                send_mail(subject, txt, None, [res.user.email], html_message=html)
+                messages.success(request, 'Booked—confirmation emailed.')
                 return redirect('my_reservations')
             except Exception as e:
                 messages.error(request, e)
         else:
-            for field, errs in form.errors.items():
-                for err in errs:
-                    messages.error(request, f"{field}: {err}")
+            for f, errs in form.errors.items():
+                for e in errs:
+                    messages.error(request, f"{f}: {e}")
     else:
         form = ReservationForm()
 
     return render(request, 'reservations/room_detail.html', {
-        'room':     room,
-        'form':     form,
-        'upcoming': upcoming,
+        'room': room, 'form': form, 'upcoming': upcoming
     })
 
 
 @login_required
 def my_reservations(request):
-    """
-    List reservations for the logged-in user.
-    """
     qs = Reservation.objects.filter(user=request.user).order_by('start_time')
     return render(request, 'reservations/my_reservations.html', {'reservations': qs})
 
 
 @login_required
 def reservation_edit(request, pk):
-    """
-    Let a user edit their own reservation.
-    """
     res = get_object_or_404(Reservation, pk=pk, user=request.user)
     if request.method == 'POST':
         form = ReservationForm(request.POST, instance=res)
         if form.is_valid():
-            updated = form.save(commit=False)
+            u = form.save(commit=False)
             try:
-                updated.clean()
-                updated.save()
-                messages.success(request, 'Reservation updated.')
+                u.clean(); u.save()
+                messages.success(request, 'Updated.')
                 return redirect('my_reservations')
             except Exception as e:
                 messages.error(request, e)
         else:
-            for field, errs in form.errors.items():
-                for err in errs:
-                    messages.error(request, f"{field}: {err}")
+            for f, errs in form.errors.items():
+                for e in errs:
+                    messages.error(request, f"{f}: {e}")
     else:
         form = ReservationForm(instance=res)
     return render(request, 'reservations/reservation_edit.html', {
@@ -185,90 +155,49 @@ def reservation_edit(request, pk):
 
 @login_required
 def reservation_cancel(request, pk):
-    """
-    Let a user cancel their own reservation.
-    """
     res = get_object_or_404(Reservation, pk=pk, user=request.user)
     if request.method == 'POST':
         res.delete()
-        messages.success(request, 'Reservation cancelled.')
+        messages.success(request, 'Cancelled.')
         return redirect('my_reservations')
     return render(request, 'reservations/reservation_cancel.html', {'reservation': res})
 
 
 def room_status(request):
-    """
-    Show availability grid for a date (08:00–18:00), grouped by time of day,
-    disallow navigation to past dates.
-    """
     today    = timezone.localtime().date()
-    date_str = request.GET.get('date')
+    ds       = request.GET.get('date')
     try:
-        selected = date.fromisoformat(date_str) if date_str else today
-    except ValueError:
+        selected = date.fromisoformat(ds) if ds else today
+    except:
         selected = today
-
     prev_date = selected - timedelta(days=1) if selected > today else None
     next_date = selected + timedelta(days=1)
-
     tz    = timezone.get_current_timezone()
-    slots = []
-    hours = []
-    for h in range(8, 18):
-        start = datetime.combine(selected, time(h, 0)).replace(tzinfo=tz)
-        end   = start + timedelta(hours=1)
-        slots.append((start, end))
-        hours.append(h)
-
-    periods = [
-        ('Morning',   range(8, 12)),
-        ('Afternoon', range(12, 17)),
-        ('Evening',   range(17, 18)),
-    ]
-    groups = []
-    for label, rng in periods:
-        count = sum(1 for h in hours if h in rng)
-        if count:
-            groups.append({'label': label, 'count': count})
-
-    table = []
+    slots = [(datetime.combine(selected, time(h)), datetime.combine(selected, time(h+1)))
+             for h in range(8, 18)]
+    periods=[('Morning', range(8,12)), ('Afternoon', range(12,17)), ('Evening', range(17,18))]
+    groups=[{'label':lbl,'count':sum(1 for s,e in slots if s.hour in rng)} for lbl,rng in periods]
+    table=[]
     for room in Room.objects.order_by('pk'):
-        statuses = [
-            Reservation.objects.filter(
-                room=room,
-                start_time__lt=end,
-                end_time__gt=start
-            ).exists()
-            for start, end in slots
-        ]
-        table.append({
-            'display':   MAORI_NUMBERS.get(room.pk, room.name),
-            'statuses': statuses
-        })
-
+        statuses=[Reservation.objects.filter(room=room, start_time__lt=e, end_time__gt=s).exists()
+                  for s,e in slots]
+        table.append({'display':MAORI_NUMBERS.get(room.pk,room.name), 'statuses': statuses})
     return render(request, 'reservations/room_status.html', {
-        'today':     today,
-        'date':      selected,
-        'prev_date': prev_date,
-        'next_date': next_date,
-        'groups':    groups,
-        'slots':     slots,
-        'table':     table,
+        'today':today, 'date':selected, 'prev_date':prev_date, 'next_date':next_date,
+        'groups':groups, 'slots':slots, 'table':table
     })
 
 
-# ─── In-App Admin Panel Views ───────────────────────────────────────────────────
+# ─── Admin Panel ───────────────────────────────────────────────────────────────
 
 @admin_required
 def admin_dashboard(request):
     return render(request, 'admin/dashboard.html')
 
-
 @admin_required
 def admin_room_list(request):
     rooms = Room.objects.order_by('pk')
     return render(request, 'admin/room_list.html', {'rooms': rooms})
-
 
 @admin_required
 def admin_room_create(request):
@@ -277,7 +206,6 @@ def admin_room_create(request):
         form.save(); messages.success(request, 'Room added.')
         return redirect('admin_room_list')
     return render(request, 'admin/room_form.html', {'form': form, 'title': 'Add Room'})
-
 
 @admin_required
 def admin_room_edit(request, pk):
@@ -288,7 +216,6 @@ def admin_room_edit(request, pk):
         return redirect('admin_room_list')
     return render(request, 'admin/room_form.html', {'form': form, 'title': 'Edit Room'})
 
-
 @admin_required
 def admin_room_delete(request, pk):
     room = get_object_or_404(Room, pk=pk)
@@ -297,12 +224,10 @@ def admin_room_delete(request, pk):
         return redirect('admin_room_list')
     return render(request, 'admin/confirm_delete.html', {'object': room, 'type': 'Room'})
 
-
 @admin_required
 def admin_reservation_list(request):
-    qs = Reservation.objects.select_related('user', 'room').order_by('-start_time')
+    qs = Reservation.objects.select_related('user','room').order_by('-start_time')
     return render(request, 'admin/reservation_list.html', {'reservations': qs})
-
 
 @admin_required
 def admin_reservation_create(request):
@@ -312,7 +237,6 @@ def admin_reservation_create(request):
         return redirect('admin_reservation_list')
     return render(request, 'admin/reservation_form.html', {'form': form, 'title': 'Add Reservation'})
 
-
 @admin_required
 def admin_reservation_cancel(request, pk):
     res = get_object_or_404(Reservation, pk=pk)
@@ -321,12 +245,10 @@ def admin_reservation_cancel(request, pk):
         return redirect('admin_reservation_list')
     return render(request, 'admin/confirm_delete.html', {'object': res, 'type': 'Reservation'})
 
-
 @admin_required
 def admin_user_list(request):
     users = User.objects.order_by('username')
     return render(request, 'admin/user_list.html', {'users': users})
-
 
 @admin_required
 def admin_user_create(request):
@@ -336,7 +258,6 @@ def admin_user_create(request):
         return redirect('admin_user_list')
     return render(request, 'admin/user_form.html', {'form': form, 'title': 'Add User'})
 
-
 @admin_required
 def admin_user_edit(request, pk):
     user = get_object_or_404(User, pk=pk)
@@ -345,7 +266,6 @@ def admin_user_edit(request, pk):
         form.save(); messages.success(request, 'User updated.')
         return redirect('admin_user_list')
     return render(request, 'admin/user_form.html', {'form': form, 'title': 'Edit User'})
-
 
 @admin_required
 def admin_user_delete(request, pk):
