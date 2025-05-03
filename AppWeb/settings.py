@@ -83,7 +83,7 @@ STATICFILES_DIRS   = [ BASE_DIR / 'static' ]
 WHITENOISE_USE_FINDERS = True
 
 # ─── AUTH REDIRECTS ────────────────────────────────────────────────────────────
-LOGIN_REDIRECT_URL  = 'room_list'
+LOGIN_REDIRECT_URL  = 'room_status'
 LOGOUT_REDIRECT_URL = 'home'
 LOGIN_URL           = 'login'
 
